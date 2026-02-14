@@ -1,0 +1,58 @@
+name: Version Sync
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+
+jobs:
+  version-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install Dependencies
+        run: pnpm install
+
+      - name: Create Release Pull Request
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          version: pnpm changeset version
+          publish: pnpm changeset tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: Sync Submodules to Remotes
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        run: |
+          GITHUB_ACTIONS_STEP_CHANGESETS_VERSION=$(echo ${{ steps.changesets.outputs.publishedPackages }} | jq -r '.[0].version')
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git submodule update --remote --recursive
+          
+          git submodule foreach --recursive '
+            if [ -n "$(git status --porcelain)" ]; then
+              echo "Changes detected in submodule $name"
+              git add .
+              git commit -m ":bookmark: Bump version to ${GITHUB_ACTIONS_STEP_CHANGESETS_VERSION}. [skip ci]"
+              git push origin ${{ github.ref_name }}
+            else
+              echo "No submodule $name changes to commit."
+            fi
+          '

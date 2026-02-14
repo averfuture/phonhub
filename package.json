@@ -1,0 +1,21 @@
+{
+  "name": "@averfuture/phonhub",
+  "version": "0.0.0",
+  "description": "Thinking Amortization Better",
+  "author": {
+    "name": "Phongphan Bunlom",
+    "email": "phongphan_bun@averfuture.com",
+    "url": "https://averfuture.com/"
+  },
+  "private": true,
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@averfuture/phonhub-api": "workspace:./packages/api",
+    "@averfuture/phonhub-ui": "workspace:./packages/ui"
+  },
+  "keywords": [],
+  "packageManager": "pnpm@10.29.2",
+  "devDependencies": {
+    "@changesets/cli": "^2.29.8"
+  }
+}

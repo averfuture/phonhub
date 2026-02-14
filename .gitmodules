@@ -1,0 +1,9 @@
+[submodule "packages/api"]
+	path = packages/api
+	url = git@github.com:averfuture/phonhub-api.git
+	branch = develop
+
+[submodule "packages/ui"]
+	path = packages/ui
+	url = git@github.com:averfuture/phonhub-ui.git
+	branch = develop
